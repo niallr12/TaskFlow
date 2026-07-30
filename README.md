@@ -23,6 +23,7 @@ Everything is stored locally in IndexedDB using Dexie. There is no backend, no s
 - Today
 - Inbox
 - Waiting
+- Recurring
 - Completed This Week
 - Permanent quick capture
 - Lightweight edit modal

@@ -11,6 +11,7 @@ import {
 } from '../services/taskMutations'
 import {
   getInboxTasks,
+  getRecurringTasks,
   getTodayGroups,
   getWaitingTasks,
   getWeeklyCompletionRecords,
@@ -45,6 +46,7 @@ export function AppShell() {
   const todayGroups = getTodayGroups(tasks)
   const inboxTasks = getInboxTasks(tasks)
   const waitingTasks = getWaitingTasks(tasks)
+  const recurringTasks = getRecurringTasks(tasks)
   const weeklyCompletions = getWeeklyCompletionRecords(completionRecords)
 
   const contextValue: AppShellContextValue = {
@@ -71,6 +73,7 @@ export function AppShell() {
           }
           inboxCount={inboxTasks.length}
           waitingCount={waitingTasks.length}
+          recurringCount={recurringTasks.length}
           completedCount={weeklyCompletions.length}
         />
 

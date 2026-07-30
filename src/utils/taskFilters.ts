@@ -102,6 +102,15 @@ export function getWaitingTasks(tasks: Task[], referenceDate = new Date()) {
   )
 }
 
+export function getRecurringTasks(tasks: Task[], referenceDate = new Date()) {
+  return sortTasks(
+    tasks.filter(
+      (task) => task.recurrence !== 'none' && task.status !== 'completed',
+    ),
+    referenceDate,
+  )
+}
+
 export function getWeeklyCompletionRecords(
   records: CompletionRecord[],
   referenceDate = new Date(),

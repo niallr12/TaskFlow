@@ -4,6 +4,7 @@ interface NavSidebarProps {
   todayCount: number
   inboxCount: number
   waitingCount: number
+  recurringCount: number
   completedCount: number
 }
 
@@ -39,6 +40,7 @@ export function NavSidebar({
   todayCount,
   inboxCount,
   waitingCount,
+  recurringCount,
   completedCount,
 }: NavSidebarProps) {
   return (
@@ -59,6 +61,7 @@ export function NavSidebar({
         <NavItem href="/" label="Today" count={todayCount} />
         <NavItem href="/inbox" label="Inbox" count={inboxCount} />
         <NavItem href="/waiting" label="Waiting" count={waitingCount} />
+        <NavItem href="/recurring" label="Recurring" count={recurringCount} />
         <NavItem
           href="/completed"
           label="Completed This Week"

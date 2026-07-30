@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { CompletedWeekPage } from './pages/CompletedWeekPage'
 import { InboxPage } from './pages/InboxPage'
+import { RecurringPage } from './pages/RecurringPage'
 import { TodayPage } from './pages/TodayPage'
 import { WaitingPage } from './pages/WaitingPage'
 
@@ -12,6 +13,7 @@ function App() {
         <Route index element={<TodayPage />} />
         <Route path="/inbox" element={<InboxPage />} />
         <Route path="/waiting" element={<WaitingPage />} />
+        <Route path="/recurring" element={<RecurringPage />} />
         <Route path="/completed" element={<CompletedWeekPage />} />
       </Route>
     </Routes>
