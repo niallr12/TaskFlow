@@ -93,6 +93,7 @@ export async function createCapturedTask(input: string, referenceDate = new Date
     dueDate: parsed.dueDate,
     completedAt: null,
     project: parsed.project,
+    waitingOn: parsed.waitingOn,
     recurrence: parsed.recurrence,
   }
 
@@ -133,6 +134,8 @@ export async function updateTaskDraft(
     status: draft.status,
     priority: draft.priority,
     project: normalizeOptionalText(draft.project),
+    waitingOn:
+      draft.status === 'waiting' ? normalizeOptionalText(draft.waitingOn) : null,
   }
 
   await taskflowDb.transaction(
@@ -167,6 +170,7 @@ export async function moveTaskToStatus(task: Task, status: TaskStatus) {
     ...task,
     status,
     completedAt: status === 'completed' ? task.completedAt : null,
+    waitingOn: status === 'waiting' ? task.waitingOn : null,
   })
 }
 

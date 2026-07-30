@@ -19,6 +19,7 @@ const defaultDraft: TaskDraft = {
   status: 'inbox',
   priority: 'normal',
   project: null,
+  waitingOn: null,
 }
 
 export function TaskEditModal({
@@ -41,6 +42,7 @@ export function TaskEditModal({
       status: task.status,
       priority: task.priority,
       project: task.project,
+      waitingOn: task.waitingOn,
     })
   }, [task])
 
@@ -72,14 +74,14 @@ export function TaskEditModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/30 px-4 py-8 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-[32px] border border-stone-200 bg-white p-6 shadow-[0_30px_90px_rgba(17,17,17,0.22)]">
-        <div className="mb-5 flex items-start justify-between gap-4">
+      <div className="w-full max-w-xl rounded-2xl border border-stone-200 bg-white p-5 shadow-[0_24px_70px_rgba(17,17,17,0.22)]">
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
               Edit task
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-stone-950">
-              Keep it lightweight
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.04em] text-stone-950">
+              Task details
             </h2>
             {task.recurrence !== 'none' ? (
               <p className="mt-2 text-sm text-stone-600">
@@ -98,7 +100,7 @@ export function TaskEditModal({
           </button>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-stone-700">Title</span>
             <input
@@ -110,7 +112,7 @@ export function TaskEditModal({
                   title: event.target.value,
                 }))
               }
-              className="w-full rounded-2xl border border-stone-300 px-4 py-3 text-[15px] text-stone-900 outline-none focus:border-stone-900"
+              className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-[15px] text-stone-900 outline-none focus:border-stone-900"
             />
           </label>
 
@@ -128,7 +130,7 @@ export function TaskEditModal({
                     dueDate: event.target.value || null,
                   }))
                 }
-                className="w-full rounded-2xl border border-stone-300 px-4 py-3 text-[15px] text-stone-900 outline-none focus:border-stone-900"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-[15px] text-stone-900 outline-none focus:border-stone-900"
               />
             </label>
 
@@ -143,7 +145,7 @@ export function TaskEditModal({
                   }))
                 }
                 placeholder="platform"
-                className="w-full rounded-2xl border border-stone-300 px-4 py-3 text-[15px] text-stone-900 outline-none focus:border-stone-900"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-[15px] text-stone-900 outline-none focus:border-stone-900"
               />
             </label>
 
@@ -157,7 +159,7 @@ export function TaskEditModal({
                     status: event.target.value as TaskDraft['status'],
                   }))
                 }
-                className="w-full rounded-2xl border border-stone-300 px-4 py-3 text-[15px] text-stone-900 outline-none focus:border-stone-900"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-[15px] text-stone-900 outline-none focus:border-stone-900"
               >
                 {TASK_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -179,7 +181,7 @@ export function TaskEditModal({
                     priority: event.target.value as TaskDraft['priority'],
                   }))
                 }
-                className="w-full rounded-2xl border border-stone-300 px-4 py-3 text-[15px] text-stone-900 outline-none focus:border-stone-900"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-[15px] text-stone-900 outline-none focus:border-stone-900"
               >
                 {TASK_PRIORITIES.map((priority) => (
                   <option key={priority} value={priority}>
@@ -187,6 +189,22 @@ export function TaskEditModal({
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="block sm:col-span-2">
+              <span className="mb-2 block text-sm font-medium text-stone-700">
+                Waiting on
+              </span>
+              <input
+                value={draft.waitingOn ?? ''}
+                onChange={(event) =>
+                  setDraft((currentDraft) => ({
+                    ...currentDraft,
+                    waitingOn: event.target.value,
+                  }))
+                }
+                placeholder="Cloud Team"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-[15px] text-stone-900 outline-none focus:border-stone-900"
+              />
             </label>
           </div>
 

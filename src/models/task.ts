@@ -15,6 +15,7 @@ export interface Task {
   dueDate: string | null
   completedAt: string | null
   project: string | null
+  waitingOn: string | null
   recurrence: TaskRecurrence
 }
 
@@ -32,4 +33,5 @@ export interface TaskDraft {
   status: TaskStatus
   priority: TaskPriority
   project: string | null
+  waitingOn: string | null
 }

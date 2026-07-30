@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { EmptyState } from '../components/EmptyState'
 import { useAppShellContext } from '../hooks/useAppShellContext'
 import { formatCompletedAt } from '../utils/date'
@@ -8,7 +8,9 @@ import {
 } from '../utils/taskFilters'
 
 export function CompletedWeekPage() {
-  const { completionRecords, searchQuery, tasks, openTask } = useAppShellContext()
+  const [copyState, setCopyState] = useState<'idle' | 'copied'>('idle')
+  const { completionRecords, searchQuery, tasks, openTask, registerVisibleTaskIds } =
+    useAppShellContext()
 
   const weeklyRecords = getWeeklyCompletionRecords(
     completionRecords.filter((record) => matchesCompletionSearch(record, searchQuery)),
@@ -25,6 +27,31 @@ export function CompletedWeekPage() {
     ).sort(([left], [right]) => left.localeCompare(right))
   }, [weeklyRecords])
 
+  const summaryText = useMemo(() => {
+    return [
+      'Completed This Week',
+      '',
+      ...groupedRecords.flatMap(([project, records]) => [
+        project,
+        ...records.map((record) => `- ${record.title}`),
+        '',
+      ]),
+    ]
+      .join('\n')
+      .trim()
+  }, [groupedRecords])
+
+  useEffect(() => {
+    registerVisibleTaskIds([])
+    return () => registerVisibleTaskIds([])
+  }, [registerVisibleTaskIds])
+
+  async function handleCopySummary() {
+    await navigator.clipboard.writeText(summaryText)
+    setCopyState('copied')
+    window.setTimeout(() => setCopyState('idle'), 1500)
+  }
+
   if (weeklyRecords.length === 0) {
     return (
       <EmptyState
@@ -35,64 +62,59 @@ export function CompletedWeekPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-[28px] border border-stone-200 bg-white px-5 py-5 shadow-[0_18px_50px_rgba(40,30,12,0.05)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-          Completed this week
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-stone-950">
-          Keep momentum visible
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-stone-600">
-          Every completion is recorded locally, including recurring tasks that roll
-          forward automatically.
-        </p>
-      </section>
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
+            Completed This Week
+          </h2>
+          <p className="text-sm text-stone-600">
+            Completion date, project, and task title.
+          </p>
+        </div>
 
-      {groupedRecords.map(([project, records]) => (
-        <section
-          key={project}
-          className="rounded-[28px] border border-stone-200 bg-white p-5 shadow-[0_10px_30px_rgba(28,24,18,0.04)]"
+        <button
+          type="button"
+          onClick={() => void handleCopySummary()}
+          className="rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-900"
         >
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-xl font-semibold tracking-[-0.03em] text-stone-950">
-              {project}
-            </h3>
-            <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
-              {records.length}
-            </span>
-          </div>
+          {copyState === 'copied' ? 'Copied' : 'Copy Summary'}
+        </button>
+      </div>
 
-          <div className="space-y-3">
-            {records.map((record) => {
-              const linkedTask = tasks.find((task) => task.id === record.taskId) ?? null
+      <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+        <div className="grid grid-cols-[160px_120px_minmax(0,1fr)] gap-3 border-b border-stone-200 bg-stone-50 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">
+          <span>Date</span>
+          <span>Project</span>
+          <span>Task</span>
+        </div>
 
-              return (
-                <button
-                  key={record.id}
-                  type="button"
-                  onClick={() => linkedTask && openTask(linkedTask.id)}
-                  disabled={!linkedTask}
-                  className="flex w-full items-start justify-between gap-4 rounded-[20px] border border-stone-200 bg-stone-50 px-4 py-3 text-left transition hover:border-stone-300 hover:bg-white disabled:cursor-default disabled:hover:border-stone-200 disabled:hover:bg-stone-50"
-                >
-                  <div>
-                    <p className="text-[15px] font-medium leading-6 text-stone-900">
-                      {record.title}
-                    </p>
-                    <p className="mt-1 text-sm text-stone-500">
-                      {linkedTask?.recurrence !== 'none' ? 'Recurring task' : 'Task'}
-                    </p>
-                  </div>
+        <div className="divide-y divide-stone-200">
+          {weeklyRecords.map((record) => {
+            const linkedTask = tasks.find((task) => task.id === record.taskId) ?? null
 
-                  <span className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-500">
-                    {formatCompletedAt(record.completedAt)}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </section>
-      ))}
+            return (
+              <button
+                key={record.id}
+                type="button"
+                onClick={() => linkedTask && openTask(linkedTask.id)}
+                disabled={!linkedTask}
+                className="grid w-full grid-cols-[160px_120px_minmax(0,1fr)] gap-3 px-3 py-2.5 text-left transition hover:bg-stone-50 disabled:cursor-default disabled:hover:bg-white"
+              >
+                <span className="text-sm text-stone-600">
+                  {formatCompletedAt(record.completedAt)}
+                </span>
+                <span className="text-sm text-stone-600">
+                  {record.project ?? 'Other'}
+                </span>
+                <span className="text-[14px] font-medium text-stone-900">
+                  {record.title}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </section>
     </div>
   )
 }

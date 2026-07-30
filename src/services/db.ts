@@ -12,6 +12,21 @@ class TaskFlowDatabase extends Dexie {
       tasks: 'id, status, priority, createdAt, dueDate, completedAt, project, recurrence',
       completionRecords: 'id, taskId, completedAt, project',
     })
+
+    this.version(2)
+      .stores({
+        tasks:
+          'id, status, priority, createdAt, dueDate, completedAt, project, recurrence, waitingOn',
+        completionRecords: 'id, taskId, completedAt, project',
+      })
+      .upgrade((transaction) =>
+        transaction
+          .table('tasks')
+          .toCollection()
+          .modify((task: Task) => {
+            task.waitingOn ??= null
+          }),
+      )
   }
 }
 

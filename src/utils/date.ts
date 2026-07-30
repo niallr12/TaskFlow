@@ -63,6 +63,18 @@ export function formatCompletedAt(completedAt: string) {
   return shortDateTimeFormatter.format(new Date(completedAt))
 }
 
+export function getElapsedDaysSince(dateTime: string, referenceDate = new Date()) {
+  const source = new Date(dateTime)
+  const start = new Date(source.getFullYear(), source.getMonth(), source.getDate())
+  const end = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
+  )
+  const millisecondsPerDay = 24 * 60 * 60 * 1000
+  return Math.max(0, Math.floor((end.getTime() - start.getTime()) / millisecondsPerDay))
+}
+
 export function isCurrentWeek(dateTime: string, referenceDate = new Date()) {
   const date = new Date(dateTime)
   const start = startOfWeek(referenceDate)

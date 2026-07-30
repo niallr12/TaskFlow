@@ -64,27 +64,32 @@ export function sortTasks(tasks: Task[], referenceDate = new Date()) {
 
 export function getTodayGroups(tasks: Task[], referenceDate = new Date()) {
   const today = getTodayDateString(referenceDate)
-  const filteredTasks = tasks.filter(
+  const activeTasks = tasks.filter((task) => task.status !== 'completed')
+  const overdue = activeTasks.filter(
     (task) =>
-      task.status !== 'completed' &&
       task.status !== 'waiting' &&
-      (task.status === 'today' ||
-        task.dueDate === today ||
-        (task.dueDate !== null && task.dueDate < today)),
+      task.dueDate !== null &&
+      task.dueDate < today,
   )
-
-  const overdue = filteredTasks.filter(
-    (task) => task.dueDate !== null && task.dueDate < today,
+  const current = activeTasks.filter(
+    (task) =>
+      task.status !== 'waiting' &&
+      !overdue.some((overdueTask) => overdueTask.id === task.id) &&
+      (task.status === 'today' || task.dueDate === today),
   )
-  const dueToday = filteredTasks.filter((task) => task.dueDate === today)
-  const markedToday = filteredTasks.filter(
-    (task) => task.status === 'today' && task.dueDate !== today,
+  const waiting = getWaitingTasks(activeTasks)
+  const upcoming = activeTasks.filter(
+    (task) =>
+      task.status !== 'waiting' &&
+      !overdue.some((overdueTask) => overdueTask.id === task.id) &&
+      !current.some((currentTask) => currentTask.id === task.id),
   )
 
   return {
     overdue: sortTasks(overdue, referenceDate),
-    dueToday: sortTasks(dueToday, referenceDate),
-    markedToday: sortTasks(markedToday, referenceDate),
+    today: sortTasks(current, referenceDate),
+    waiting,
+    upcoming: sortTasks(upcoming, referenceDate),
   }
 }
 
@@ -95,11 +100,10 @@ export function getInboxTasks(tasks: Task[], referenceDate = new Date()) {
   )
 }
 
-export function getWaitingTasks(tasks: Task[], referenceDate = new Date()) {
-  return sortTasks(
-    tasks.filter((task) => task.status === 'waiting'),
-    referenceDate,
-  )
+export function getWaitingTasks(tasks: Task[]) {
+  return [...tasks]
+    .filter((task) => task.status === 'waiting')
+    .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
 }
 
 export function getRecurringTasks(tasks: Task[], referenceDate = new Date()) {
